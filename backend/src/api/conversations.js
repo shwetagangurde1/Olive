@@ -41,7 +41,7 @@ router.get('/:id', async (req, res) => {
 
 // POST /api/conversations - create conversation
 router.post('/', async (req, res) => {
-  const { title, provider = 'anthropic', model = 'claude-sonnet-4-20250514', system_prompt, metadata } = req.body;
+  const { title, provider = 'anthropic', model = 'openai/gpt-oss-20b:free', system_prompt, metadata } = req.body;
   try {
     const result = await query(`
       INSERT INTO conversations (title, provider, model, system_prompt, metadata)

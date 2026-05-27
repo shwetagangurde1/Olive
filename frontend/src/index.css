@@ -1,0 +1,162 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #16161f;
+    --bg4: #1c1c28;
+    --border: rgba(255,255,255,0.06);
+    --border2: rgba(255,255,255,0.12);
+    --text: #f0f0f5;
+    --text2: #8888aa;
+    --text3: #55556a;
+    --accent: #7c6af7;
+    --accent2: #a89cfa;
+    --accent-bg: rgba(124,106,247,0.12);
+    --green: #34d48a;
+    --green-bg: rgba(52,212,138,0.1);
+    --red: #f26b6b;
+    --red-bg: rgba(242,107,107,0.1);
+    --amber: #f5a623;
+    --amber-bg: rgba(245,166,35,0.1);
+    --blue: #5ab4f5;
+    --blue-bg: rgba(90,180,245,0.1);
+    --font-display: 'Syne', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --radius: 8px;
+    --radius-lg: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body, #root {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+  ::selection { background: var(--accent-bg); color: var(--accent2); }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 cursor-pointer transition-all duration-150;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 6px 14px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border2);
+    background: var(--bg3);
+    color: var(--text2);
+  }
+  .btn:hover { border-color: var(--border2); background: var(--bg4); color: var(--text); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .btn-primary {
+    background: var(--accent-bg);
+    border-color: var(--accent);
+    color: var(--accent2);
+  }
+  .btn-primary:hover { background: rgba(124,106,247,0.2); color: var(--text); }
+
+  .btn-danger {
+    background: var(--red-bg);
+    border-color: var(--red);
+    color: var(--red);
+  }
+
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+
+  .input {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 8px 12px;
+    width: 100%;
+    transition: border-color 0.15s;
+    resize: none;
+  }
+  .input:focus { outline: none; border-color: var(--accent); }
+  .input::placeholder { color: var(--text3); }
+  .input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+  }
+  .badge-green { background: var(--green-bg); color: var(--green); }
+  .badge-red { background: var(--red-bg); color: var(--red); }
+  .badge-blue { background: var(--blue-bg); color: var(--blue); }
+  .badge-amber { background: var(--amber-bg); color: var(--amber); }
+  .badge-purple { background: var(--accent-bg); color: var(--accent2); }
+
+  .pill {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    font-family: var(--font-mono);
+    background: transparent;
+    color: var(--text3);
+  }
+  .pill:hover { color: var(--text2); border-color: var(--border); }
+  .pill.active {
+    background: var(--accent-bg);
+    border-color: var(--accent);
+    color: var(--accent2);
+  }
+
+  .nav-link {
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    color: var(--text3);
+    transition: all 0.15s;
+    letter-spacing: 0.03em;
+  }
+  .nav-link:hover { color: var(--text2); }
+  .nav-link.active { color: var(--text); background: var(--bg3); }
+}
+
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+@keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+@keyframes slideIn { from{opacity:0;transform:translateX(-8px)} to{opacity:1;transform:translateX(0)} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+.msg-enter { animation: fadeIn 0.2s ease forwards; }
+.sidebar-enter { animation: slideIn 0.2s ease forwards; }

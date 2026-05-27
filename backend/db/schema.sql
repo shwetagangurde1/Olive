@@ -1,6 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-CREATE TABLE conversations (
+CREATE TABLE IF NOT EXISTS conversations (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     title TEXT,
     status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'cancelled', 'archived')),
@@ -13,7 +13,7 @@ CREATE TABLE conversations (
     cancelled_at TIMESTAMPTZ
 );
 
-CREATE TABLE messages (
+CREATE TABLE IF NOT EXISTS messages (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     conversation_id UUID NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
     role TEXT NOT NULL CHECK (role IN ('user', 'assistant', 'system', 'tool')),
@@ -24,7 +24,7 @@ CREATE TABLE messages (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE inference_logs (
+CREATE TABLE IF NOT EXISTS inference_logs (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     conversation_id UUID REFERENCES conversations(id) ON DELETE SET NULL,
     message_id UUID REFERENCES messages(id) ON DELETE SET NULL,
@@ -53,7 +53,7 @@ CREATE TABLE inference_logs (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE events (
+CREATE TABLE IF NOT EXISTS events (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     event_type TEXT NOT NULL,
     aggregate_id UUID,
@@ -64,7 +64,7 @@ CREATE TABLE events (
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE metrics_hourly (
+CREATE TABLE IF NOT EXISTS metrics_hourly (
     hour TIMESTAMPTZ NOT NULL,
     provider TEXT NOT NULL,
     model TEXT NOT NULL,
@@ -82,16 +82,22 @@ CREATE TABLE metrics_hourly (
     PRIMARY KEY (hour, provider, model)
 );
 
-CREATE INDEX idx_messages_conversation ON messages(conversation_id, turn_index);
-CREATE INDEX idx_inference_logs_conversation ON inference_logs(conversation_id);
-CREATE INDEX idx_inference_logs_created ON inference_logs(created_at DESC);
-CREATE INDEX idx_inference_logs_provider_model ON inference_logs(provider, model);
-CREATE INDEX idx_inference_logs_status ON inference_logs(status);
-CREATE INDEX idx_events_type ON events(event_type, processed);
-CREATE INDEX idx_conversations_status ON conversations(status, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_messages_conversation ON messages(conversation_id, turn_index);
+CREATE INDEX IF NOT EXISTS idx_inference_logs_conversation ON inference_logs(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_inference_logs_created ON inference_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_inference_logs_provider_model ON inference_logs(provider, model);
+CREATE INDEX IF NOT EXISTS idx_inference_logs_status ON inference_logs(status);
+CREATE INDEX IF NOT EXISTS idx_events_type ON events(event_type, processed);
+CREATE INDEX IF NOT EXISTS idx_conversations_status ON conversations(status, created_at DESC);
 
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW(); RETURN NEW; END; $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER conversations_updated_at
-    BEFORE UPDATE ON conversations FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+DO $$ BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_trigger WHERE tgname = 'conversations_updated_at'
+  ) THEN
+    CREATE TRIGGER conversations_updated_at
+      BEFORE UPDATE ON conversations FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+  END IF;
+END $$;
